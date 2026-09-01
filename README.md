@@ -163,8 +163,73 @@ row and, with `submitEachTrial`, immediately sends that trial's rows to the serv
 submission means a dropout still leaves usable data). See the comment block at the top of
 `MotrTrial.vue` for the full column list.
 
-Layout details that the data depends on: `font-size: 18px; line-height: 40px;` and
-`padding: 2% 11%` on both text layers. Keep the two layers identical if you restyle.
+### Restyling: font size and the spotlight
+
+Layout details that the data depends on: `font-size: 18px; line-height: 40px;` on
+`.main_screen` and `padding: 2% 11%` on both text layers. Keep `.readingText` and
+`.blurry-layer` identical (font, weight, padding) or the sharp and blurred copies drift apart.
+`test/browser/harness.html` copies those three rules so the parity tests run against the real
+layout — change them there too.
+
+**The spotlight does not scale with the font.** Every dimension of the moving window is a
+fixed pixel value carried over from the original MoTR experiment, and nothing is computed
+from text metrics — the JS only toggles the `.grow` / `.blank` classes. So raising
+`font-size` leaves a 102 × 38 px window over larger glyphs: it covers fewer characters, and
+the 5 px page blur bites less (big blurred glyphs stay readable). Lower the font and the
+window spans more words while the blur bites harder. The 38 px oval is also tuned to sit
+inside one 40 px line, so raising `font-size` without raising `line-height` makes the window
+bleed into the lines above and below.
+
+To make it track the font instead, put these in `em` — the values below are today's pixel
+sizes ÷ 18, so at `font-size: 18px` the screen renders exactly as it does now — and from then
+on change only `font-size` on `.main_screen`:
+
+| Where (`MotrTrial.vue`) | Now | In `em` |
+| --- | --- | --- |
+| `.oval-cursor.grow` width / height | `102px` / `38px` | `5.667em` / `2.111em` |
+| `.oval-cursor.grow.blank` width / height | `80px` / `13px` | `4.444em` / `0.722em` |
+| `.oval-cursor.grow` `filter: blur()` | `3px` | `0.167em` |
+| `.oval-cursor.grow` `box-shadow` | `±30px 0 8px -4px` | `±1.667em 0 0.444em -0.222em` |
+| `.blurry-layer` `filter: blur()` (inline style in the template) | `5px` | `0.278em` |
+| `.main_screen` `line-height` | `40px` | `2.222` (unitless) |
+| cursor offset in `onMouseMove` | `x + 12`, `y - 6` | move into CSS, below |
+
+`.oval-cursor.grow::before` (the bright core) is already `70%` of the oval, so it follows for
+free, and the collapsed `1px` base state can stay as it is. Making `line-height` unitless is
+what keeps the oval-height-to-line-pitch ratio invariant, so the window stays within one line
+at any size.
+
+The cursor offset is applied from JS in pixels and has to move into the CSS transform to
+scale. It is purely cosmetic — hit testing uses the raw `clientX`/`clientY`, never the oval's
+geometry — so this is safe:
+
+```js
+// MotrTrial.vue, onMouseMove
+cursor.style.left = `${x}px`; // was `${x + 12}px`
+cursor.style.top = `${y}px`; // was `${y - 6}px`
+```
+
+```css
+/* .oval-cursor — was transform: translate(-50%, -50%); declared once, all states share it */
+transform: translate(calc(-50% + 0.667em), calc(-50% - 0.333em));
+```
+
+Two constraints:
+
+- **`em` on the oval resolves against `.main_screen`'s font size.** `.oval-cursor` is a
+  descendant of it (`position: fixed` changes the containing block, but `em` follows the
+  inheritance chain), so the one knob has to stay `font-size` on `.main_screen`. Setting the
+  size on `.readingText` alone would grow the text and leave the window behind.
+- **Do not scale the hit-test constant.** `LOOK_ABOVE_PX = 3` (`src/charEvents/layout.js`) and
+  the matching `y - 3` fallback in `MotrTrial.vue`'s `wordAt` decide *which character is
+  recorded*, not what the participant sees. They must stay equal to each other, and changing
+  them breaks equivalence with the legacy 20 Hz sampler and with published MoTR data. If you
+  do change it, change both and re-run `npm test` — the browser tests check the rule against
+  the real engine.
+
+Browser zoom is not an alternative knob: it scales all CSS px together, text and window alike
+(`zoomPercent` is recorded per trial). After any restyle, run `npm test` and open a trial to
+confirm the window still sits within a single line.
 
 ## Data format
 

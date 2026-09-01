@@ -367,6 +367,10 @@ button {
   /* bottom: 0; */
   left: 50%;
 }
+/* The window geometry below is fixed pixels and does NOT scale with font-size: at a larger
+   font it simply covers fewer characters, and the 38px oval is tuned to sit inside one 40px
+   line. README "Restyling: font size and the spotlight" lists the em equivalents (and the
+   JS cursor offset in onMouseMove) if you want it to track the font instead. */
 .oval-cursor {
   position: fixed;
   z-index: 2;
