@@ -15,7 +15,7 @@ import { measureLayout } from "./measure.js";
 
 const MAX_TIMESTAMP_SKEW_MS = 10000;
 
-export function attachRecorder({ recorder, readingTextEl, words, fixedY = null}) {
+export function attachRecorder({ recorder, readingTextEl, words }) {
   const now = () => performance.now();
   let detached = false;
 
@@ -32,8 +32,7 @@ export function attachRecorder({ recorder, readingTextEl, words, fixedY = null})
       const ev = evs[i];
       let ts = ev.timeStamp;
       if (!(Math.abs(ts - t1) < MAX_TIMESTAMP_SKEW_MS)) { ts = t1; recorder.tsrc = "perf"; }
-      const y = fixedY === null ? ev.clientY : fixedY;
-      recorder.feed(ev.clientX, y, ts, ev.pointerType || "mouse");
+      recorder.feed(ev.clientX, ev.clientY, ts, ev.pointerType || "mouse");
     }
     recorder.noteBatch(evs.length, coalesced, (now() - t1) * 1000);
   };
