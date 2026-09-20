@@ -138,6 +138,26 @@ export function hitCharIK(index, x, y) {
   return null;
 }
 
+export function hitCharIKX(index, x) {
+  for (const band of index.bands) {
+    for (const f of band.frags) {
+      if (x < f.left || x >= f.right) continue;
+
+      // Find the character whose horizontal interval contains x.
+      const x1 = x + 1;
+      let j = lastBelow(f.xs, x1);
+
+      if (j === f.xs.length - 1) j--;
+
+      if (j >= 0 && j < f.xs.length - 1) {
+        return { i: f.i, k: f.k0 + j };
+      }
+    }
+  }
+
+  return null;
+}
+
 /**
  * Legacy-equivalent state for a pointer position:
  *   OUT (-2)  outside the text block (legacy records nothing),
@@ -152,6 +172,19 @@ export function hitState(index, offsets, x, y) {
   if (!ik) return NONE;
   return offsets[ik.i] + ik.k;
 }
+
+export function hitStateX(index, offsets, x) {
+  const B = index.block;
+
+  if (!(x + 1 > B[0] && x < B[2])) return OUT;
+
+  const ik = hitCharIKX(index, x);
+
+  if (!ik) return NONE;
+
+  return offsets[ik.i] + ik.k;
+}
+
 
 /** Compare two tables number-by-number with tolerance `eps` (default 0.05 px). */
 export function tablesEqual(a, b, eps = 0.05) {

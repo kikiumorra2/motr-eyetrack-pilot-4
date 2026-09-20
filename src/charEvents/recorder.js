@@ -11,7 +11,7 @@
 // t0 is passed to start(). The implicit initial pointer state is OUT.
 
 import { FORMAT_ID, encodeLayout, encodeEvents, encodeTrace, encodeStats, assertCharset } from "./format.js";
-import { OUT, NONE, buildIndex, spanOffsets, hitState, tablesEqual } from "./layout.js";
+import { OUT, NONE, buildIndex, spanOffsets, hitState, hitStateX, tablesEqual } from "./layout.js";
 
 export const DEFAULTS = {
   maxEvents: 20000,
@@ -134,7 +134,8 @@ export class CharEventRecorder {
         this.traceDropped++;
       }
     }
-    const state = hitState(this.index, this.offsets, x, y);
+    //const state = hitState(this.index, this.offsets, x, y);
+    const state = hitStateX(this.index, this.offsets, x);
     this.lastPoint = { x, y };
     this._setState(T, state);
     return state;
@@ -154,7 +155,7 @@ export class CharEventRecorder {
     const T = this._T(t);
     const id = this._addSnapshot(T, table);
     this._emit(T, "l", id);
-    if (this.lastPoint) this._setState(T, hitState(this.index, this.offsets, this.lastPoint.x, this.lastPoint.y));
+    if (this.lastPoint) this._setState(T, hitStateX(this.index, this.offsets, this.lastPoint.x));
     return true;
   }
 
