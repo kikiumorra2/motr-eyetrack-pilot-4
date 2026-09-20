@@ -6,58 +6,83 @@
 -->
 <template>
   <div class="browser-check">
-    <template v-if="zoomOk">
-      <p>&#10003; Your browser zoom is set to 100%.</p>
+
+    <!-- STEP 1 -->
+    <template v-if="!showPreview">
+      <p>
+        <b>Please reset your browser zoom to 100% before continuing.</b>
+      </p>
+
+      <p>
+        Press <kbd>Ctrl</kbd> + <kbd>0</kbd> on Windows/Linux,
+        or <kbd>&#8984;</kbd> + <kbd>0</kbd> on Mac.
+      </p>
+
+      <p>
+        Please use a desktop or laptop computer with a mouse or trackpad,
+        <b>make this window full-screen</b> and not bigger than your screen. Keep it open and do not change the zoom until the study is complete.
+      </p>
+
+      <button @click="showPreview = true">
+        I have reset the zoom to 100% and maximized my window
+      </button>
     </template>
+
+    <!-- STEP 2 -->
     <template v-else>
       <p>
-        <b>Please set your browser zoom to 100%.</b>
-        It is currently about {{ zoom }}%.
+        <b>Please check text box below.</b>
       </p>
+
       <p>
-        Press <kbd>Ctrl</kbd> + <kbd>0</kbd> (Windows / Linux) or <kbd>&#8984;</kbd> +
-        <kbd>0</kbd> (Mac) to reset the zoom. This page updates automatically.
+        Being able to see the entire text is crucial for this study, so if you cannot fully see "START" and "END" in the box,
+        <b>we kindly ask you to quit this study.</b> Thank you.
       </p>
+
+      <div class="sentence-preview-window">
+        <div
+          class="sentence-preview"
+          :style="{ fontSize: sentenceFontSize + 'px' }"
+        >{{previewSentence}}</div>
+      </div>
+
+
+      <button @click="$emit('done')">
+        The text fits on my screen
+      </button>
     </template>
-    <p>
-      Please use a desktop or laptop computer with a mouse or trackpad, keep this window
-      open and do not change the zoom until the study is complete.
-    </p>
-    <button v-if="zoomOk" @click="$emit('done')">Continue</button>
-    <p v-else-if="canSkip">
-      <a href="#" @click.prevent="$emit('done')">I cannot change the zoom &ndash; continue anyway</a>
-    </p>
+
   </div>
 </template>
 
+
 <script>
-import config from "../config";
-import { zoomPercent } from "../browser";
 
 export default {
   name: "BrowserCheck",
-  data() {
-    return { zoom: zoomPercent(), canSkip: false, skipTimer: null };
-  },
-  computed: {
-    zoomOk() {
-      const c = config.browserCheck;
-      if (!c.requireZoom100 || this.zoom === null) return true;
-      return Math.abs(this.zoom - 100) <= c.zoomTolerance;
+
+  props: {
+    longestSentence: {
+      type: String,
+      required: true,
+    },
+
+    sentenceFontSize: {
+      type: Number,
+      required: true,
     },
   },
-  mounted() {
-    window.addEventListener("resize", this.update);
-    const seconds = config.browserCheck.allowSkipAfterSeconds;
-    if (seconds > 0) this.skipTimer = setTimeout(() => (this.canSkip = true), seconds * 1000);
+
+  data() {
+    return {
+      showPreview: false,
+    };
   },
-  beforeDestroy() {
-    window.removeEventListener("resize", this.update);
-    clearTimeout(this.skipTimer);
-  },
-  methods: {
-    update() {
-      this.zoom = zoomPercent();
+
+  computed: {
+    previewSentence() {
+      //return "With schools still closed, cars still buried and streets still blocked by the widespread weekend snowstorm, officials are asking people to help out.";
+        return "START----------------------------------------------------------------------------------------------------------------------------------------------------END";
     },
   },
 };
@@ -69,5 +94,38 @@ export default {
   border-radius: 3px;
   padding: 0 4px;
   font-family: inherit;
+}
+
+.sentence-preview-window {
+  width: calc(100vw - 2px);
+  max-width: calc(100vw - 2px);
+
+  margin-top: 30px;
+  margin-bottom: 30px;
+
+  margin-left: 50%;
+  transform: translateX(-50%);
+
+  overflow: hidden;
+  box-sizing: border-box;
+
+  border: 1px solid #999;
+  padding: 1px;
+}
+
+.sentence-preview {
+  font-family: Consolas, monospace;
+  font-weight: 450;
+
+  white-space: nowrap !important;
+  width: 100%;
+
+  text-align: center;
+
+  pointer-events: none;
+
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
 }
 </style>

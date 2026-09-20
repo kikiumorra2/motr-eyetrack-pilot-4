@@ -6,24 +6,24 @@
  */
 export default {
   // Recorded in every data row as `Experiment`. Use a short, unique slug per experiment.
-  experimentName: "motr_template",
+  experimentName: "SAP_mousetrack_pilot_383",
 
   // Completion code shown on the final screen. Must match completionUrl in magpie.config.js.
-  completionCode: "XXXXXXXX",
+  completionCode: "C1B0Y2VH", 
 
   // Which list to use when the URL has no ?LIST_ID=N parameter.
   // "random" picks uniformly among materials/lists/list_*.csv; a number picks that list.
   defaultList: "random",
 
   // Number of items from materials/practice.csv to show before the main trials (0 = none).
-  nPractice: 2,
+  nPractice: 4,
 
   // Number of fillers (taken from the top of materials/fillers.csv) that are always shown
   // first, unshuffled, so participants warm up on easy sentences.
-  nLeadingFillers: 2,
+  nLeadingFillers: 1,
 
   // Shuffle the critical items and remaining fillers.
-  shuffleTrials: true,
+  shuffleTrials: false,
 
   // Question asked after each sentence. If an item has its own `question`/`options`
   // columns in the materials CSV, those are used instead. Set enabled: false to go
