@@ -207,28 +207,9 @@
         
         In this study you will read sentences. Unlike in normal reading however, the text will be blured. 
         Before you begin reading each sentence, click on the <b><span style="color: green;">green rectangle</span></b> to the left. Then, to bring different parts of the text into focus, 
-        move your mouse horizontally. <b>Feel free to go back and reread</b> any part of the sentence at any point. 
-        Take as much time as you need on any sentence - there is no rush! When you are done reading, click on the <b><span style="color: red;">red rectangle</span></b> to the right of the sentence.
+        move your mouse horizontally. When you are done reading, click on the <b><span style="color: red;">red rectangle</span></b> to the right of the sentence.
       
       </p>
-
-      <p>
-        Here is a short demonstration video:
-      </p>
-
-      <div class="motr-demo-container">
-         <video
-          class="motr-demo-video"
-          :src="motrDemo"
-          autoplay
-          muted
-          loop
-          playsinline
-          controls
-        >
-          Your browser does not support the video element.
-        </video>
-      </div>
 
       
       <p>
@@ -322,7 +303,7 @@ import BrowserCheck from "./components/BrowserCheck.vue";
 import { chooseListId, buildPracticeTrials, buildMainTrials } from "./materials";
 import { browserInfo } from "./browser";
 import { submitRows } from "./submit";
-import motrDemo from "./assets/motr_demo.mp4";
+
   
   
 //make the font be a function of the size of the screen so that you never have to scroll to see full sentence -->
@@ -406,7 +387,7 @@ export default {
     console.log(`[MoTR] sentence font size: ${sentenceFontSize}px`);
     
     console.log(`[MoTR] list ${listId}: ${practiceTrials.length} practice + ${mainTrials.length} main trials`, mainTrials);
-    return { config, listId, practiceTrials, mainTrials, sentenceFontSize, longestSentence, motrDemo, submitting: false };
+    return { config, listId, practiceTrials, mainTrials, sentenceFontSize, longestSentence, submitting: false };
   },
   created() {
     // magpie replaces the socket with a stub that raises a "no socket URL is set" warning
@@ -617,19 +598,4 @@ export default {
 }
 
 
-.motr-demo-container {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin: 20px 0;
-}
-
-.motr-demo-video {
-  width: 1000px;
-  max-width: 95vw;
-  height: auto;
-
-  border: 4px solid black;
-  box-sizing: border-box;
-}
 </style>
