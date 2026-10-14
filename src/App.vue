@@ -175,7 +175,7 @@
     </p>
 
     <div
-      class="consent-button"
+      class="consent-button" 
       v-if="$magpie.measurements.SubjectID"
     >
       <button @click="consent">
